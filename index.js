@@ -1,17 +1,26 @@
-const jwt = require('jsonwebtoken')
-const fs = require('fs')
+require("dotenv").config();
 
-fs.readFile('./laiba-backend-app.2021-11-29.private-key.pem', 'utf-8', (err, data) => {
-    //iat
+const jwt = require("jsonwebtoken");
+const fs = require("fs").promises;
 
-    const date = Math.floor(new Date().getTime() / 1000)
+const PRIVATE_KEY_PATH = process.env.PRIVATE_KEY_PATH;
+
+const generateToken = async () => {
+  try {
+    const privateKey = await fs.readFile(PRIVATE_KEY_PATH, "utf-8");
+    const date = Math.floor(new Date().getTime() / 1000);
 
     const payload = {
-        iat: date - 60,
-        exp: date + (10 * 60),
-        iss: "APP_ID"
-    }
+      iat: date - 60,
+      exp: date + 10 * 60,
+      iss: "APP_ID",
+    };
 
-    const jwt_token = jwt.sign(payload, data, { algorithm: 'RS256' })
-    console.log(jwt_token)
-})
+    const jwtToken = jwt.sign(payload, privateKey, { algorithm: "RS256" });
+    console.log(jwtToken);
+  } catch (error) {
+    console.error("Error reading file data", error);
+  }
+};
+
+generateToken();
